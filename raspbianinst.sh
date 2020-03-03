@@ -3,7 +3,7 @@
 echo -n "Did you plug the USB drive or SD card? [y/N] "
 read scelta
 
-if [ "$scelta" != "y" -a "$scelta" != "Y" ]; then
+if [[ ! "$scelta" =~ ^([y-Y][e-E][s-S]|[y-Y])$ ]]; then
     echo "Installation arrested."
     exit
 fi
@@ -12,13 +12,6 @@ userRun=$(whoami)
 echo "Preliminary checks."
 if [ "$userRun" != "root" ]; then
     userRoot="n"
-    sudo -k # make sure to ask for password on next sudo
-    if sudo true; then
-        echo "Correct password"
-    else
-        echo "Wrong password"
-        exit
-    fi
 else
     userRoot="y"
 fi
@@ -30,8 +23,8 @@ lastDisk=$(( lastDisk + 1))
 echo "Select where to flash the Raspbian OS image:"
 echo -e "$(cat /tmp/diskList)"
 echo "     "$lastDisk " None of above. [exit]"
-until [[ $chooseDisk =~ ^[1-$lastDisk] ]]; do
-    read -rp"Select [1-"$lastDisk"]: " -e -i $lastDisk chooseDisk
+until [[ $chooseDisk =~ ^([1-$lastDisk])$ ]]; do
+    read -rp "Select [1-"$lastDisk"]: " -e -i $lastDisk chooseDisk
 done
 if [ "$chooseDisk" == "$lastDisk" ]; then
     exit
@@ -43,7 +36,7 @@ echo "The installation will be done on "$dkusb
 echo -n "Continue? [y/N] "
 read scelta
 
-if [ "$scelta" != "y" -a "$scelta" != "Y" ]; then
+if [[ ! "$scelta" =~ ^([y-Y][e-E][s-S]|[y-Y])$ ]]; then
     echo "Installation arrested."
     exit
 fi
@@ -52,7 +45,7 @@ echo "Wich version of Raspbian OS you want install? "
 echo "	1. Raspbian full [with desktop and recommended software]"
 echo "	2. Raspbian desktop [with desktop]"
 echo "	3. Raspbian server [CLI]"
-until [[ $version =~ ^[1-3] ]]; do
+until [[ $version =~ ^([1-3])$ ]]; do
     read -rp"Select [1-3]: " -e -i 2 version
 done
 case $version in
@@ -103,6 +96,16 @@ else
     ifdownos="y"
 fi
 
+if [ "$userRoot" == "n" ]; then
+    sudo -k # make sure to ask for password on next sudo
+    if sudo true; then
+        echo "Correct password"
+    else
+        echo "Wrong password"
+        exit
+    fi
+fi
+
 if [ "$ifdownos" == "y" -o "$ifdownos" == "Y" ]; then
     wget -P ~/Downloads https://downloads.raspberrypi.org/$osversion
 fi
@@ -147,12 +150,12 @@ fi
 sleep 1
 
 #SSH
-if [ "$sshen" == "y" -o "$sshen" == "Y" ]; then
+if [[ "$sshen" =~ ^([y-Y][e-E][s-S]|[y-Y])$ ]]; then
     sudo touch ~/tmpboot/SSH
 fi
 
 #WiFI
-if [ "$parWiFi" == "y" -o "$parWiFi" == "Y" ]; then
+if [[ "$parWiFi" =~ ^([y-Y][e-E][s-S]|[y-Y])$ ]]; then
     echo "ctrl_interface=/var/run/wpa_supplicant" >> /tmp/wpa_supplicant.conf
     echo "update_config=1" >> /tmp/wpa_supplicant.conf
     echo "network={" >> /tmp/wpa_supplicant.conf
@@ -177,7 +180,7 @@ echo "dtparam=audio=on" >> /tmp/configtemp.tmp
 echo "" >> /tmp/configtemp.tmp
 echo "gpu_mem="$qgpu >> /tmp/configtemp.tmp
 #Official LCD
-if [ "$lcd7inch" == "y" -o "$lcd7inch" == "Y" ]; then
+if [[ "$lcd7inch" =~ ^([y-Y][e-E][s-S]|[y-Y])$ ]]; then
     echo "" >> /tmp/configtemp.tmp
     echo "#LCD official 7 inch" >> /tmp/configtemp.tmp
     echo "lcd_rotate=2" >> /tmp/configtemp.tmp
