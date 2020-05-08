@@ -75,7 +75,7 @@ read lcd7inch
 echo -n "Would you like to set the WiFi parameters? [y/N] "
 read parWiFi
 
-if [ "$scelta" = "y" -o "$scelta" = "Y" ]; then
+if [[ ! "$parWiFi" =~ ^([y-Y][e-E][s-S]|[y-Y])$ ]]; then
     echo -n "insert the SSID name: "
     read nSSID
 
