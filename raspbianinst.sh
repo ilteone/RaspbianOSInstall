@@ -51,15 +51,15 @@ done
 case $version in
     1)
         echo "Raspbian OS full installation"
-        osversion=raspbian_full_latest
+        osversion=raspios_full_armhf_latest
     ;;
     2)
         echo "Raspbian OS desktop installation"
-        osversion=raspbian_latest
+        osversion=raspios_armhf_latest
     ;;
     3)
-        echo "Raspbian OS server installation"
-        osversion=raspbian_lite_latest
+        echo "Raspberry Pi OS server installation"
+        osversion=raspios_lite_armhf_latest
     ;;
 esac
 
@@ -75,7 +75,7 @@ read lcd7inch
 echo -n "Would you like to set the WiFi parameters? [y/N] "
 read parWiFi
 
-if [[ ! "$parWiFi" =~ ^([y-Y][e-E][s-S]|[y-Y])$ ]]; then
+if [[ "$parWiFi" =~ ^([y-Y][e-E][s-S]|[y-Y])$ ]]; then
     echo -n "insert the SSID name: "
     read nSSID
 
@@ -87,7 +87,8 @@ dirDest=~/Downloads
 if [ ! -d "$dirDest" ]; then
     mkdir ~/Downloads
 fi
-filename=~/Downloads/$osversion
+
+filename=~/Downloads/$osversion.zip
 
 if [ -f "$filename" ]; then
     echo -n "In the destination folder is already present "$osversion". Would you like to download it again? [y/N] "
@@ -96,18 +97,8 @@ else
     ifdownos="y"
 fi
 
-if [ "$userRoot" == "n" ]; then
-    sudo -k # make sure to ask for password on next sudo
-    if sudo true; then
-        echo "Correct password"
-    else
-        echo "Wrong password"
-        exit
-    fi
-fi
-
 if [ "$ifdownos" == "y" -o "$ifdownos" == "Y" ]; then
-    wget -P ~/Downloads https://downloads.raspberrypi.org/$osversion
+    wget -P ~/Downloads https://downloads.raspberrypi.org/$osversion -O $filename
 fi
 
 echo "Extracting img. Wait..."
@@ -118,6 +109,16 @@ fi
 rm -rf ~/Downloads/rpiimg/*
 bsdtar -xpf $filename -C ~/Downloads/rpiimg
 echo "Extraction Done."
+
+if [ "$userRoot" == "n" ]; then
+    sudo -k # make sure to ask for password on next sudo
+    if sudo true; then
+        echo "Correct password"
+    else
+        echo "Wrong password"
+        exit
+    fi
+fi
 
 for fileimg in ~/Downloads/rpiimg/*img;
 do
